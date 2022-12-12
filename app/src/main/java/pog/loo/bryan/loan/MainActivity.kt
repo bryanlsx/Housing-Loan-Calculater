@@ -2,12 +2,14 @@ package pog.loo.bryan.loan
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import pog.loo.bryan.loan.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    //initialise later
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var builder: AlertDialog.Builder
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,20 +35,33 @@ class MainActivity : AppCompatActivity() {
                     //Calc Legal Fees and Stamp duty
                     actualAmount = sellingPrice.toDouble() - downPayment.toDouble()
 
-                    if(actualAmount > 500000){
-                        legalFee = ((500000 * 0.01) + (500000 * 0.01) + (actualAmount - 1000000)).toFloat()
-                        stampDuty = (actualAmount * 0.05).toFloat()
+                    if(sellingPrice > 500000){
+                        legalFee = ((500000 * 0.001) + (500000 * 0.008) + ((sellingPrice - 1000000)*0.005)).toFloat()
+                        stampDuty = (sellingPrice * 0.005).toFloat()
                     }else{
-                        legalFee = (500000 * 0.01).toFloat()
-                        stampDuty = (actualAmount * 0.05).toFloat()
+                        legalFee = (500000 * 0.001).toFloat()
+                        stampDuty = (actualAmount * 0.005).toFloat()
                     }
                 }else{
                     //Unacceptable
                     //Show Dialog
+                    builder = AlertDialog.Builder(this)
+                    builder.setTitle("Warning! Insufficient Amount!")
+                        .setMessage("Please Enter at lease 10% of your loan amount for first time buyer!")
+                        .setNegativeButton("Okay"){dialogInterface,it ->
+                            dialogInterface.cancel()
+                        }
+                        .show()
                 }
             }else{
                 //None First Time Buyer
-
+                if(sellingPrice > 500000){
+                    legalFee = ((500000 * 0.001) + (500000 * 0.008) + ((sellingPrice - 1000000)*0.005)).toFloat()
+                    stampDuty = (sellingPrice * 0.005).toFloat()
+                }else{
+                    legalFee = (500000 * 0.001).toFloat()
+                    stampDuty = (actualAmount * 0.005).toFloat()
+                }
             }
             //Display Result
             val myLoan = Loan(legalFee.toString(), stampDuty.toString())
